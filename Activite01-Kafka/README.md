@@ -1,5 +1,22 @@
 # Activité pratique N°1
 
+## Sommaire
+- [x] Partie 1 : Kafka
+- - [x] 1.1 Installation de Kafka
+- - [x] 1.2 Lancement de Kafka et Zookeeper
+- - [x] 1.3 Test de Kafka
+- [x] Partie 2 : Docker
+- - [x] 2.1 Installation des composants
+- - [x] 2.2 Création d'un environnnment
+- [] Partie 3 : Spring cloud
+- - [x] 3.1 Initialisation du projet
+- - [x] 3.2 Service Producer KAFKA via un Rest Controler 
+- - [x] 3.3 Service Consumer KAFKA
+- - [x] 3.4 Service Supplier KAFKA
+- - [] 3.5 Service de Data Analytics Real Time Stream Processing avec Kaflka Streams
+- - [] 3.6 Application Web qui permet d'afficher les résultats du Stream Data Analytics en temps réel
+---
+
 ## Partie 1 : Kafka
 
 ### 1.1 Installation de Kafka
@@ -56,6 +73,8 @@ Pour installer Docker, il faut suivre les instructions du site officiel de Docke
 ### 2.2 Création d'un environnnment 
 
 Pour ceci, on utilisera la documentation **Confluent** : https://developer.confluent.io/quickstart/kafka-docker/ . 
+
+![Confluent guide](image-10.png)
 
 Voici le fichier [`docker-compose.yml`](./kafka-java-getting-started/docker-compose.yml) utilisé : 
 
@@ -129,3 +148,97 @@ Exécutées séparemment dans 4 terminaux.
 
 ## Partie 3 : Spring cloud 
 ### 3.1 Initialisation du projet 
+On initialise le projet avec Spring Initializr en ajoutant les dépendances suivantes :
+- Spring Web
+- Spring for Apache Kafka
+- Spring for Apache Kafka Streams
+- Spring Cloud 
+- Lombok
+
+![Dependencies](image-11.png)
+
+On peut voir que parmi les dépendnace, Stream Cloud Binder Kafka est déjà inclu. 
+
+```xml	
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-stream-test-binder</artifactId>
+	<scope>test</scope>
+</dependency>
+```
+
+### 3.2 Service Producer KAFKA via un Rest Controler
+On crée les Page Event :
+- [`PageEvent.java`](./spring-cloud-kafka/src/main/java/com/example/springcloudkafka/entities/PageEvent.java) : représente un événement de page
+- [`PageEventRestController.java`](./spring-cloud-kafka/src/main/java/com/example/springcloudkafka/web/PageEventRestController.java) : représente un contrôleur REST pour les événements de page
+
+On lance zookeeper et kafka :
+
+![img.png](img.png)
+
+On lance le projet et dans un navigateur on tape l'url suivante :
+http://localhost:8080/publish/test/blog
+
+avec test le nom du topic et blog le nom de la page.
+
+![img_1.png](img_1.png)
+
+Résultat :
+```json
+{
+  "name": "blog",
+  "user": "U2",
+  "date": "2023-10-14T21:21:30.690+00:00",
+  "duration": 8892
+}
+```
+
+### 3.3 Service Consumer KAFKA
+Oncréer le service 
+- [`PageEventService.java`](./spring-cloud-kafka/src/main/java/com/example/springcloudkafka/services/PageEventService.java) qui va consommer les événements de page.
+
+Puis ajoute la configuration suivante dans le fichier [`application.properties`](./spring-cloud-kafka/src/main/resources/application.properties) :
+
+```properties
+spring.cloud.stream.bindings.pageEvents-in-0.destination=test
+```
+Puis on teste le service en lançant le projet, on envoie un message grace au controlleur REST et on vérifie que le message est bien consommé par le service.
+
+![img_2.png](img_2.png)
+
+### 3.4 Service Supplier KAFKA
+Dans le terminal on ajoute un topic `test2`
+
+Puis on définit la méthode ``Supplier<PageEvent>`` dans [PageEventSupplier.java](./spring-cloud-kafka/src/main/java/com/example/springcloudkafka/services/PageEventSupplier.java) qui va envoyer des événements de page à un topic Kafka.
+
+On ajoute la configuration suivante dans le fichier [`application.properties`](./spring-cloud-kafka/src/main/resources/application.properties) :
+
+```properties
+spring.cloud.stream.bindings.pageEventConsumer-in-0.destination=test2
+spring.cloud.stream.bindings.pageEventSupplier-out-0.destination=test
+
+spring.cloud.function.definition=pageEventSupplier;pageEventConsumer
+```
+
+On lance le projet et on vérifie que le message est bien envoyé dans le topic `test2`
+
+![img_3.png](img_3.png)
+
+**Note** : on ajoute ``spring.cloud.stream.poller.fixed-delay=2000`` dans le fichier [`application.properties`](./spring-cloud-kafka/src/main/resources/application.properties) pour envoyer un message toutes les 2 secondes.
+
+
+Dans le terminal on ajoute un topic `test3`
+![img_4.png](img_4.png)
+
+Dans [``PageEventService.java``](./spring-cloud-kafka/src/main/java/com/example/springcloudkafka/services/PageEventService.java) on ajoute la méthode ``Function<PageEvent,PageEvent>`` qui va consommer les événements de page et les envoyer à un autre topic Kafka.
+ Dans le fichier [`application.properties`](./spring-cloud-kafka/src/main/resources/application.properties) on ajoute la configuration suivante :
+
+```properties
+spring.cloud.stream.bindings.pageEventFunction-in-0.destination=test2
+spring.cloud.stream.bindings.pageEventFunction-out-0.destination=test3
+```
+
+### 3.5 Service de Data Analytics Real Time Stream Processing avec Kaflka Streams
+
+Dans [`PageEventService.java`](./spring-cloud-kafka/src/main/java/com/example/springcloudkafka/services/PageEventService.java) on ajoute la méthode ``Function<KStream<String, PageEvent>, KStream<String, Long>>`` qui va consommer les événements de page et renvoie le nombre de pages vues par utilisateur.
+

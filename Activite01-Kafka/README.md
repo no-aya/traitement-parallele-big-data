@@ -8,13 +8,13 @@
 - [x] Partie 2 : Docker
 - - [x] 2.1 Installation des composants
 - - [x] 2.2 Création d'un environnnment
-- [] Partie 3 : Spring cloud
+- [x] Partie 3 : Spring cloud
 - - [x] 3.1 Initialisation du projet
 - - [x] 3.2 Service Producer KAFKA via un Rest Controler 
 - - [x] 3.3 Service Consumer KAFKA
 - - [x] 3.4 Service Supplier KAFKA
-- - [] 3.5 Service de Data Analytics Real Time Stream Processing avec Kaflka Streams
-- - [] 3.6 Application Web qui permet d'afficher les résultats du Stream Data Analytics en temps réel
+- - [x] 3.5 Service de Data Analytics Real Time Stream Processing avec Kaflka Streams
+- - [x] 3.6 Application Web qui permet d'afficher les résultats du Stream Data Analytics en temps réel
 ---
 
 ## Partie 1 : Kafka
@@ -241,4 +241,56 @@ spring.cloud.stream.bindings.pageEventFunction-out-0.destination=test3
 ### 3.5 Service de Data Analytics Real Time Stream Processing avec Kaflka Streams
 
 Dans [`PageEventService.java`](./spring-cloud-kafka/src/main/java/com/example/springcloudkafka/services/PageEventService.java) on ajoute la méthode ``Function<KStream<String, PageEvent>, KStream<String, Long>>`` qui va consommer les événements de page et renvoie le nombre de pages vues par utilisateur.
+
+
+Dans le fichier [`application.properties`](./spring-cloud-kafka/src/main/resources/application.properties) on ajoute la configuration suivante :
+
+```properties
+spring.cloud.stream.bindings.kStreamFunction-in-0.destination=test2
+spring.cloud.stream.bindings.kStreamFunction-out-0.destination=test4
+```
+On lance le consumer de test4 avec les propriétés suivantes :
+```bash
+bin\windows\kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic test4 --property print.key=true --property print.value=true --property key.deserializer=org.apache.kafka.common.serialization.StringDeserializer --property value.deserializer=org.apache.kafka.common.serialization.LongDeserializer
+
+```
+
+On lance le projet et on vérifie que le message est bien envoyé dans le topic `test4`
+
+![img_5.png](img_5.png)
+
+Sur [``PageEventRestController.java``](./spring-cloud-kafka/src/main/java/com/example/springcloudkafka/web/PageEventRestController.java) on ajoute la méthode ``Flux<Map<String,Long>> analytics()`` qui va consommer les événements de page et renvoie le nombre de pages vues par utilisateur.
+
+On lance le projet et on teste la méthode en accédant à l'url suivante : http://localhost:8080/analytics
+
+![img_6.png](img_6.png)
+
+### 3.6 Application Web qui permet d'afficher les résultats du Stream Data Analytics en temps réel
+
+Dans Ressources/static on crée un fichier [index.html](./spring-cloud-kafka/src/main/resources/static/index.html) qui va afficher les résultats du Stream Data Analytics en temps réel en utilisant le framework [Smoothie Charts](http://smoothiecharts.org/).
+
+Il faut préciser la source du flux :
+```javascript
+var stockEventSource = new EventSource("/analytics");
+  stockEventSource.addEventListener("message", function (event) {
+    pages.forEach(function (v) {
+      val = JSON.parse(event.data)[v];
+      courbe[v].append(new Date().getTime(), val);
+    });
+  });
+```
+
+On lance le projet et on teste l'application en accédant à l'url suivante : http://localhost:8080
+
+![img_7.png](img_7.png)
+
+On peut toujours personnalisé l'application en ajoutant analytics pour une page 
+```java
+@GetMapping(path = "/analytics/{page}",produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+public Flux<Map<String,Long>> analytics(@PathVariable String page){...}
+```
+et en ajoutant la source du flux dans le fichier [index.html](./spring-cloud-kafka/src/main/resources/static/index.html) :
+```javascript
+var stockEventSource = new EventSource("/analytics/"+page);
+```
 

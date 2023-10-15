@@ -1,16 +1,20 @@
 package com.example.springcloudkafka.services;
 
+
 import com.example.springcloudkafka.entities.PageEvent;
+
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValue;
-import org.apache.kafka.streams.kstream.Grouped;
-import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+
+import org.apache.kafka.common.utils.Bytes;
 
 @Service
 public class PageEventService {
@@ -35,18 +39,21 @@ public class PageEventService {
     @Bean
     public Function<PageEvent,PageEvent> pageEventFunction(){
         return (input) -> {
-            input.setName(input.getName().toUpperCase());
+            input.setName("L:"+input.getName().length());
             input.setUser("Aya");
             return input;
         };
     }
 
+    @Bean
     public Function<KStream<String, PageEvent>, KStream<String,Long>> kStreamFunction(){
         return (input) -> input
                 .filter((k,v) -> v.getDuration()>100)
                 .map((k,v) -> new KeyValue<>(v.getName(),0L))
-                .groupByKey(Grouped.with(Serdes.String(),Serdes.Long()))
-                .count()
-                .toStream();
+                .groupBy((k,v)->k, Grouped.with(Serdes.String(),Serdes.Long()))
+                .windowedBy(TimeWindows.of(Duration.ofMillis(5000)))
+                .count(Materialized.as("page-counts"))
+                .toStream()
+                .map((k,v) -> new KeyValue<>("=>"+k.window().startTime()+k.window().endTime()+k.key(),v));
     }
 }

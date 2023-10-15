@@ -174,7 +174,7 @@ On crée les Page Event :
 
 On lance zookeeper et kafka :
 
-![img.png](img.png)
+![img.png](img/img.png)
 
 On lance le projet et dans un navigateur on tape l'url suivante :
 http://localhost:8080/publish/test/blog

@@ -33,7 +33,7 @@ start .\bin\windows\zookeeper-server-start.bat .\config\zookeeper.properties
 start .\bin\windows\kafka-server-start.bat .\config\server.properties
 ```
 
-![Exécution des commandes](image.png)
+![Exécution des commandes](img/image.png)
 
 ### 1.3 Test de Kafka
 Pour tester Kafka, il faut créer un topic et envoyer des messages. Pour créer un topic, il faut lancer la commande suivante :
@@ -56,10 +56,10 @@ Pour lire les messages, il faut lancer la commande suivante :
 .\bin\windows\kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic test --from-beginning
 ```
 
-![Test de Kafka](image-1.png)
+![Test de Kafka](img/image-1.png)
 
 
-![Test Kafka 2](image-2.png)
+![Test Kafka 2](img/image-2.png)
 
 
 ## Patie 2 : Docker 
@@ -68,13 +68,13 @@ Pour lire les messages, il faut lancer la commande suivante :
 Pour installer Docker, il faut suivre les instructions du site officiel de Docker. Pour ce TP, nous avons utilisé la version Docker Desktop 4.24.1  (Windows 10 Home).
 
 
-![Docker Desktop Interface](image-3.png)
+![Docker Desktop Interface](img/image-3.png)
 
 ### 2.2 Création d'un environnnment 
 
 Pour ceci, on utilisera la documentation **Confluent** : https://developer.confluent.io/quickstart/kafka-docker/ . 
 
-![Confluent guide](image-10.png)
+![Confluent guide](img/image-10.png)
 
 Voici le fichier [`docker-compose.yml`](./kafka-java-getting-started/docker-compose.yml) utilisé : 
 
@@ -83,7 +83,7 @@ Voici le fichier [`docker-compose.yml`](./kafka-java-getting-started/docker-comp
 version: '3'
 services:
   broker:
-    image: confluentinc/cp-kafka:7.5.0
+    img/image: confluentinc/cp-kafka:7.5.0
     container_name: broker
     ports:
       - "9092:9092"
@@ -111,13 +111,13 @@ Pour compiler et démarrer l'environnement :
 docker-compose up -d
 ```
 
-![Trminal](image-6.png)
+![Trminal](img/image-6.png)
 
 Ce fichier génère le conteneur suivant :
 
-![Docker Desktop](image-4.png)
+![Docker Desktop](img/image-4.png)
 
-![Docker ps](image-5.png)
+![Docker ps](img/image-5.png)
 
 Maintenant pour tester la communication on utilise les commandes suivantes :
 
@@ -135,15 +135,15 @@ Exécutées séparemment dans 4 terminaux.
 
 - Envoi de messages de test
 
-![Envoi de messages de test ](image-8.png)
+![Envoi de messages de test ](img/image-8.png)
 
 - Récepzion des messages de test
 
-![Messages de test](image-7.png)
+![Messages de test](img/image-7.png)
 
 - Liste des topics
 
-![Topics list](image-9.png)
+![Topics list](img/image-9.png)
 
 
 ## Partie 3 : Spring cloud 
@@ -155,7 +155,7 @@ On initialise le projet avec Spring Initializr en ajoutant les dépendances suiv
 - Spring Cloud 
 - Lombok
 
-![Dependencies](image-11.png)
+![Dependencies](img/image-11.png)
 
 On peut voir que parmi les dépendnace, Stream Cloud Binder Kafka est déjà inclu. 
 
@@ -181,7 +181,7 @@ http://localhost:8080/publish/test/blog
 
 avec test le nom du topic et blog le nom de la page.
 
-![img_1.png](img_1.png)
+![img/img_1.png](img/img_1.png)
 
 Résultat :
 ```json
@@ -204,7 +204,7 @@ spring.cloud.stream.bindings.pageEvents-in-0.destination=test
 ```
 Puis on teste le service en lançant le projet, on envoie un message grace au controlleur REST et on vérifie que le message est bien consommé par le service.
 
-![img_2.png](img_2.png)
+![img/img_2.png](img/img_2.png)
 
 ### 3.4 Service Supplier KAFKA
 Dans le terminal on ajoute un topic `test2`
@@ -222,13 +222,13 @@ spring.cloud.function.definition=pageEventSupplier;pageEventConsumer
 
 On lance le projet et on vérifie que le message est bien envoyé dans le topic `test2`
 
-![img_3.png](img_3.png)
+![img/img_3.png](img/img_3.png)
 
 **Note** : on ajoute ``spring.cloud.stream.poller.fixed-delay=2000`` dans le fichier [`application.properties`](./spring-cloud-kafka/src/main/resources/application.properties) pour envoyer un message toutes les 2 secondes.
 
 
 Dans le terminal on ajoute un topic `test3`
-![img_4.png](img_4.png)
+![img/img_4.png](img/img_4.png)
 
 Dans [``PageEventService.java``](./spring-cloud-kafka/src/main/java/com/example/springcloudkafka/services/PageEventService.java) on ajoute la méthode ``Function<PageEvent,PageEvent>`` qui va consommer les événements de page et les envoyer à un autre topic Kafka.
  Dans le fichier [`application.properties`](./spring-cloud-kafka/src/main/resources/application.properties) on ajoute la configuration suivante :
@@ -257,13 +257,13 @@ bin\windows\kafka-console-consumer.bat --bootstrap-server localhost:9092 --topic
 
 On lance le projet et on vérifie que le message est bien envoyé dans le topic `test4`
 
-![img_5.png](img_5.png)
+![img/img_5.png](img/img_5.png)
 
 Sur [``PageEventRestController.java``](./spring-cloud-kafka/src/main/java/com/example/springcloudkafka/web/PageEventRestController.java) on ajoute la méthode ``Flux<Map<String,Long>> analytics()`` qui va consommer les événements de page et renvoie le nombre de pages vues par utilisateur.
 
 On lance le projet et on teste la méthode en accédant à l'url suivante : http://localhost:8080/analytics
 
-![img_6.png](img_6.png)
+![img/img_6.png](img/img_6.png)
 
 ### 3.6 Application Web qui permet d'afficher les résultats du Stream Data Analytics en temps réel
 
@@ -282,7 +282,7 @@ var stockEventSource = new EventSource("/analytics");
 
 On lance le projet et on teste l'application en accédant à l'url suivante : http://localhost:8080
 
-![img_7.png](img_7.png)
+![img/img_7.png](img/img_7.png)
 
 On peut toujours personnalisé l'application en ajoutant analytics pour une page 
 ```java

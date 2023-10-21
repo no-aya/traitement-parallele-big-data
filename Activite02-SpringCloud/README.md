@@ -3,7 +3,7 @@
 ## Sommaire
 - [x] [Première partie : (Customer-Service, Inventory-Service, Spring Cloud Gateway, Eureka Discovery)](#première-partie--customer-service-inventory-service-spring-cloud-gateway-eureka-discovery)
 - [x] [Deuxième Partie : Billing Service avec Open Feign Rest Client](#deuxième-partie--billing-service-avec-open-feign-rest-client)
-- [ ] [Troisième Partie : Client Angular](#troisième-partie--client-angular)
+- [x] [Troisième Partie : Client Angular](#troisième-partie--client-angular)
 
 ## Première partie : (Customer-Service, Inventory-Service, Spring Cloud Gateway, Eureka Discovery)
 
@@ -52,12 +52,12 @@ CommandLineRunner start(CustomerRepository customerRepository) {
 
 On lance l'application et on teste :
 - localhost:8080/actuator
-![img_3.png](img_3.png)
+![img_3.png](imgs/img_3.png)
 
-![img_2.png](img_2.png)
+![img_2.png](imgs/img_2.png)
 
 - localhost:8080/customers
-![img_1.png](img_1.png)
+![img_1.png](imgs/img_1.png)
 
 ### 3. Inventory Microservice
 
@@ -78,7 +78,7 @@ spring.cloud.discovery.enabled=false
 management.endpoints.web.exposure.include=*
 ```
 
-![img_4.png](img_4.png)
+![img_4.png](imgs/img_4.png)
 
 ### 4. Spring Cloud Gateway
 
@@ -116,7 +116,7 @@ spring:
             - StripPrefix=1
 ```
 
-![img_5.png](img_5.png)
+![img_5.png](imgs/img_5.png)
 
 Puis dans [`GatewayApplication.java`](gateway-service/src/main/java/com/example/gatewayservice/GatewayApplication.java), on ajoute la méthode suivante :
 
@@ -135,7 +135,7 @@ On peut désormais accéder à Customer Service et Inventory Service via le Gate
 - localhost:8080/customers
 - localhost:8080/products
 
-![img_6.png](img_6.png)
+![img_6.png](imgs/img_6.png)
 
 ### 5. Eureka Discovery
 
@@ -154,12 +154,12 @@ eureka.client.register-with-eureka=false
 
 On lance et on accède à localhost:8761 :
 
-![img_7.png](img_7.png)
+![img_7.png](imgs/img_7.png)
 
 Pour les autres microservices, on change `spring.cloud.discovery.enable=true`
 Les microservices s'affichent avec leur ID
 
-![img_8.png](img_8.png)
+![img_8.png](imgs/img_8.png)
 
 On peut désormais utiliser les id pour identifier les microservices 
 
@@ -180,13 +180,13 @@ On n'a plus besoin de définir les routes manuellement.
 Pour accéder aux micros- services : 
 - localhost:8080/{NOM_SERVICE}/path
 
-![img_10.png](img_10.png)
+![img_10.png](imgs/img_10.png)
 
 ----
 NOTE : 
 Il faut renommer le fichier `application.yml` pour qu'il ne soit pas pris en compte par Spring Cloud Gateway.
 
-![img_9.png](img_9.png)
+![img_9.png](imgs/img_9.png)
 ----
 
 ## Deuxième Partie : Billing Service avec Open Feign Rest Client
@@ -254,7 +254,7 @@ spring.datasource.driverClassName=org.h2.Driver
 
 On reçoit les données du Customer Service :
 
-![img_11.png](img_11.png)
+![img_11.png](imgs/img_11.png)
 
 Pour exposer les ID des customers et des products, on ajoute dans CommandLineRunner du service CustomerService  :
 
@@ -276,16 +276,16 @@ Même chose pour le service InventoryService :
 
 On reçoit les données du Customer Service :
 
-![img_12.png](img_12.png)
+![img_12.png](imgs/img_12.png)
 
 On peut enregistrer une facture avec les données du Customer Service :
 
-![img_13.png](img_13.png)
+![img_13.png](imgs/img_13.png)
 
 
 Pour pouvoir communiquer avec Billing Service, on ajoute [`BillingRestConfig.java`](billing-service/src/main/java/com/example/billingservice/config/BillingRestConfig.java) dans le service CustomerService.
 
-![img_14.png](img_14.png)
+![img_14.png](imgs/img_14.png)
 
 
 
@@ -308,7 +308,7 @@ ng g c products
 
 On vérifie que les services sont bien lancés :
 
-![img_15.png](img_15.png)
+![img_15.png](imgs/img_15.png)
 
 Puis dans [`products.component.ts`](ecom-web-app/src/app/products/products.component.ts), on ajoute la méthode suivante :
 

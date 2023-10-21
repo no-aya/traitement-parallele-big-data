@@ -283,10 +283,64 @@ On peut enregistrer une facture avec les données du Customer Service :
 ![img_13.png](img_13.png)
 
 
-Pour pouvoir communiqur avec Billing Service, on ajoute [`BillingRestConfig.java`](billing-service/src/main/java/com/example/billingservice/config/BillingRestConfig.java) dans le service CustomerService.
+Pour pouvoir communiquer avec Billing Service, on ajoute [`BillingRestConfig.java`](billing-service/src/main/java/com/example/billingservice/config/BillingRestConfig.java) dans le service CustomerService.
 
 ![img_14.png](img_14.png)
 
 
 
 ## Troisième Partie : Client Angular
+
+On crée un nouveau projet Angular.
+
+Puis on installe les dépendances suivantes :
+- Bootstrap
+
+```bash
+npm install bootstrap
+```
+
+On ajoute le composant ProductsComponent :
+
+```bash
+ng g c products
+```
+
+On vérifie que les services sont bien lancés :
+
+![img_15.png](img_15.png)
+
+Puis dans [`products.component.ts`](ecom-web-app/src/app/products/products.component.ts), on ajoute la méthode suivante :
+
+```typescript
+  ngOnInit(): void {
+    this.http.get('http://localhost:8080/PROD-SERVICE/products').subscribe({
+        next : (data) => {
+            this.products = data;
+        },
+        error : (error) => {
+            console.log(error);
+        }
+    });
+}
+```
+
+_ Gateway cors filter : dans [`application.yml`](gateway/src/main/resources/application.yml) on ajoute les lignes suivantes : 
+
+```yml
+spring:
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+            '[/**]':
+                allowedOrigins: "*"
+                allowedMethods:
+                - GET
+                - POST
+                - PUT
+                - DELETE
+                allowedHeaders:
+                - "*"
+                allowCredentials: true
+```

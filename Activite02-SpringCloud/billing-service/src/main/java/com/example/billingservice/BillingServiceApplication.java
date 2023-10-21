@@ -44,7 +44,7 @@ public class BillingServiceApplication {
 			System.out.println("Email = " + c1.getEmail());
 			System.out.println("***********************");
 			 */
-			PagedModel<Product> productItems = productItemRestClient.pageProducts();
+			PagedModel<Product> productItems = productItemRestClient.pageProducts(0,3);
 
 			productItems.forEach(p -> {
 				ProductItem productItem = new ProductItem();
@@ -61,6 +61,16 @@ public class BillingServiceApplication {
 			System.out.println("Date = " + bill.getBillingDate());
 			System.out.println("Customer ID = " + bill.getCustomerId());
 			System.out.println("***********************");
+			System.out.println("Product Items ");
+			System.out.println("***********************");
+			Collection<ProductItem> productItems1 = productItemRepository.findByBillId(bill.getId());
+			productItems1.forEach(pi -> {
+				System.out.println("ID = " + pi.getId());
+				System.out.println("Price = " + pi.getPrice());
+				System.out.println("Quantity = " + pi.getQuantity());
+				System.out.println("Product ID = " + pi.getProductId());
+				System.out.println("***********************");
+			});
 
 		};
 	}

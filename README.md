@@ -4,3 +4,6 @@ L'integralité des activités du module 2 semestre 5 : Traitement parallèle en 
 
 - [Activité pratique N° 1 : Event Driven Architecture](./Activite01-Kafka/README.md)
 - [Activité pratique N°2 : Architectures Micro-services avec Spring cloud](./Activite02-SpringCloud/README.md)
+- [Consul](./Activite03-SpringCloudConfig/README.md)
+- [Activité Pratique N°3 - Event Driven Architecture](./Activite03-EDA/README.md)
+- [Activité Pratique N°4 :  Sécurité des Systèmes Distribués](./Activite05-KeyCloak/KeyCloak%20in/README.md)
